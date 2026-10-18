@@ -1,0 +1,28 @@
+# One command: docker compose up --build   ->  app on :8000, FalkorDB Browser on :3000
+services:
+  falkordb:
+    image: falkordb/falkordb:latest
+    ports: ["6379:6379", "3000:3000"]
+    volumes: ["falkor_data:/data"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  api:
+    build: .
+    ports: ["8000:8000"]
+    env_file:
+      - path: ./.env
+        required: false
+    environment:
+      FALKOR_HOST: falkordb
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.0-flash}
+    depends_on:
+      falkordb:
+        condition: service_healthy
+    restart: unless-stopped
+volumes:
+  falkor_data:

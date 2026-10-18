@@ -1,0 +1,1528 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lethe — Agent Truth Maintenance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%233b82f6%22 stroke-width=%222%22><circle cx=%226%22 cy=%226%22 r=%223%22/><circle cx=%2218%22 cy=%226%22 r=%223%22/><circle cx=%2218%22 cy=%2218%22 r=%223%22/><circle cx=%226%22 cy=%2218%22 r=%223%22/><path d=%22M9 6h6M6 9v6M18 9v6M8.5 8.5l7 7%22/></svg>">
+<style>
+/* ── Clean Professional Design System ────────────────────────────── */
+:root {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  
+  --bg-app: #080b11;
+  --bg-surface: #0e131f;
+  --bg-surface-elevated: #141b2d;
+  --bg-hover: #1a233a;
+  --bg-input: #0a0e18;
+  
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-glow: rgba(59, 130, 246, 0.2);
+  
+  --emerald: #10b981;
+  --emerald-subtle: rgba(16, 185, 129, 0.1);
+  --emerald-border: rgba(16, 185, 129, 0.3);
+  
+  --rose: #f43f5e;
+  --rose-subtle: rgba(244, 63, 94, 0.1);
+  --rose-border: rgba(244, 63, 94, 0.3);
+  
+  --amber: #f59e0b;
+  
+  --nav-h: 52px;
+  --dock-h: 42px;
+  --sidebar-w: 360px;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+}
+
+[data-theme="light"] {
+  --bg-app: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f1f5f9;
+  --bg-hover: #e2e8f0;
+  --bg-input: #ffffff;
+  
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.18);
+  
+  --text: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #94a3b8;
+  
+  --emerald-subtle: rgba(16, 185, 129, 0.08);
+  --rose-subtle: rgba(244, 63, 94, 0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; width: 100%; overflow: hidden; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-app);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  user-select: none;
+}
+
+button, input, select, textarea { font-family: inherit; color: inherit; }
+
+/* ── Minimalist Top Navigation ──────────────────────────────────── */
+#header {
+  height: var(--nav-h);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  gap: 16px;
+  z-index: 50;
+  position: relative;
+}
+
+.brand-grp {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: var(--text);
+}
+.brand-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 2px 8px var(--primary-glow);
+}
+.brand-name {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+
+.workspace-select {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+}
+.workspace-select:hover { border-color: var(--border-strong); }
+
+.nav-status-grp {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.conn-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.conn-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--emerald);
+  box-shadow: 0 0 6px var(--emerald);
+}
+.conn-dot.off {
+  background: var(--rose);
+  box-shadow: 0 0 6px var(--rose);
+}
+
+.stats-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+}
+.stats-active { color: var(--emerald); font-weight: 600; }
+.stats-stale { color: var(--rose); font-weight: 600; }
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-studio {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: var(--r-sm);
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+.btn-studio:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.btn-tour {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--r-sm);
+  background: var(--primary);
+  border: none;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-tour:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.btn-tour:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+.btn-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-sm);
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-icon:hover { background: var(--bg-hover); color: var(--text); }
+
+/* ── App Workspace ──────────────────────────────────────────────── */
+#workspace {
+  display: grid;
+  grid-template-columns: 1fr var(--sidebar-w);
+  height: calc(100vh - var(--nav-h));
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* ── Graph Canvas Area ──────────────────────────────────────────── */
+#canvas-wrapper {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-app);
+}
+
+#canvas-viewport {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.04) 1px, transparent 0);
+  background-size: 28px 28px;
+  cursor: grab;
+}
+#canvas-viewport.dragging { cursor: grabbing; }
+
+#wire-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* Edge Lines */
+.edge {
+  fill: none;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  transition: opacity 0.25s, stroke-width 0.2s;
+}
+.edge.STATED { stroke: var(--emerald); marker-end: url(#m-stated); }
+.edge.DERIVED_FROM { stroke: var(--primary); marker-end: url(#m-derived); }
+.edge.CONTRADICTS { stroke: var(--rose); stroke-dasharray: 5 4; marker-end: url(#m-contradicts); }
+.edge.off { opacity: 0.12; stroke: var(--text-dim) !important; }
+.edge.dim { opacity: 0.08; }
+.edge.hl { stroke-width: 2.5; filter: drop-shadow(0 0 3px currentColor); }
+
+/* Node Cards */
+#node-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  min-width: 154px;
+  max-width: 180px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  cursor: grab;
+  transition: box-shadow 0.15s, border-color 0.15s, opacity 0.2s;
+  user-select: none;
+}
+.node:hover {
+  border-color: var(--primary);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.4);
+  z-index: 20;
+}
+.node.dragging {
+  cursor: grabbing;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  z-index: 30;
+}
+.node.hl {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary), 0 8px 24px var(--primary-glow);
+  z-index: 25;
+}
+.node.dim { opacity: 0.18; }
+
+/* Source Node */
+.node.src {
+  border-top: 3px solid var(--emerald);
+}
+.node-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+.node-type {
+  font-size: 9.5px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.node.src .node-type { color: var(--emerald); }
+.node.belief .node-type { color: var(--primary); }
+
+.node-sub {
+  font-size: 9.5px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+}
+
+.node-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+
+.node-trust-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-surface-elevated);
+  border-radius: 4px;
+  padding: 3px 6px;
+  margin-top: 6px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.btn-retract-action {
+  margin-top: 8px;
+  width: 100%;
+  padding: 4px 0;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid var(--rose-border);
+  color: var(--rose);
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-retract-action:hover { background: var(--rose-subtle); }
+.btn-retract-action:disabled { opacity: 0.35; cursor: default; }
+
+/* Belief Node */
+.node.belief {
+  border-top: 3px solid var(--primary);
+}
+.node-text {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.pill-status {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+.pill-status.active { background: var(--emerald-subtle); color: var(--emerald); }
+.pill-status.stale { background: var(--rose-subtle); color: var(--rose); }
+
+.node.stale {
+  opacity: 0.45;
+  border-style: dashed;
+}
+.node.stale .node-text { text-decoration: line-through; color: var(--text-dim); }
+.node.retracted { border-color: var(--rose); opacity: 0.5; }
+
+/* Floating Canvas Controls */
+.canvas-hud {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+}
+.hud-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.hud-btn:hover { background: var(--bg-hover); color: var(--text); border-color: var(--border-strong); }
+
+/* ── Bottom Dock (Timeline & Cypher) ────────────────────────────── */
+#dock {
+  height: var(--dock-h);
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  gap: 16px;
+  z-index: 20;
+  flex-shrink: 0;
+}
+
+.dock-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  max-width: 480px;
+}
+.dock-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+input[type=range].dock-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--bg-surface-elevated);
+  border-radius: 99px;
+  outline: none;
+}
+input[type=range].dock-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--primary);
+  cursor: pointer;
+  border: 2px solid var(--bg-surface);
+  box-shadow: 0 0 6px var(--primary-glow);
+}
+.dock-event {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+.btn-reset-dock {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+}
+.btn-reset-dock:hover { color: var(--rose); }
+
+.dock-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cypher-tag {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+}
+.cypher-text { color: #cbd5e1; overflow: hidden; text-overflow: ellipsis; }
+.cypher-text .kw { color: #f43f5e; }
+.cypher-text .tp { color: #10b981; }
+.latency-text { color: var(--emerald); font-size: 10px; margin-left: 6px; }
+
+/* ── Sidebar ────────────────────────────────────────────────────── */
+#sidebar {
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.side-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface-elevated);
+}
+.side-tab {
+  flex: 1;
+  padding: 9px 2px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+.side-tab:hover { color: var(--text); }
+.side-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+.side-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.panel { display: none; flex-direction: column; gap: 12px; }
+.panel.active { display: flex; }
+
+/* Query Input */
+.search-row {
+  display: flex;
+  gap: 6px;
+}
+.search-input {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  font-size: 12.5px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.search-input:focus { border-color: var(--primary); }
+.search-btn {
+  padding: 0 12px;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--r-sm);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.search-btn:hover { background: var(--primary-hover); }
+
+/* Chips */
+.chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.chip-btn {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.chip-btn:hover { border-color: var(--primary); color: var(--text); }
+
+/* Answer Card */
+.res-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.res-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.res-pill {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 99px;
+}
+.res-pill.ok { background: var(--emerald-subtle); color: var(--emerald); }
+.res-pill.bad { background: var(--rose-subtle); color: var(--rose); }
+
+.res-text {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text);
+}
+.res-lineage {
+  border-top: 1px solid var(--border);
+  padding-top: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+/* Audit Log */
+.audit-box {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+}
+.audit-header {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.audit-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+.audit-line {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  padding: 4px 6px;
+  border-radius: 3px;
+  background: var(--bg-app);
+  border-left: 2px solid var(--border-strong);
+  color: var(--text-muted);
+}
+.audit-line:first-child { border-left-color: var(--primary); color: var(--text); }
+
+/* Forms */
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.field-lbl { font-size: 11px; font-weight: 600; color: var(--text-dim); }
+.field-in, .field-sel, .field-area {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 7px 9px;
+  font-size: 12px;
+  color: var(--text);
+  outline: none;
+}
+.field-in:focus, .field-sel:focus, .field-area:focus { border-color: var(--primary); }
+.field-area { resize: vertical; min-height: 60px; }
+
+.btn-submit {
+  width: 100%;
+  padding: 8px 0;
+  border-radius: var(--r-sm);
+  background: var(--primary);
+  border: none;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.btn-submit:hover { background: var(--primary-hover); }
+
+/* Toast */
+#toast {
+  position: fixed;
+  bottom: 54px;
+  right: 16px;
+  z-index: 100;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  font-size: 12px;
+  color: var(--text);
+  transform: translateY(10px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast.err { color: var(--rose); border-color: var(--rose-border); }
+#toast.ok { color: var(--emerald); border-color: var(--emerald-border); }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ────────────────────────────────────────────────── -->
+<header id="header">
+  <div class="brand-grp">
+    <a class="brand" href="#">
+      <div class="brand-logo">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><circle cx="6" cy="18" r="3"/><path d="M9 6h6M6 9v6M18 9v6M8.5 8.5l7 7"/></svg>
+      </div>
+      <span class="brand-name">Lethe</span>
+    </a>
+    <select class="workspace-select" id="ws-switcher" title="Graph workspace">
+      <option value="shared">shared_base</option>
+      <option value="alice">alice_session</option>
+      <option value="bob">bob_session</option>
+    </select>
+  </div>
+
+  <div class="nav-status-grp">
+    <div class="conn-pill">
+      <span class="conn-dot" id="conn-dot"></span>
+      <span id="conn-text">Connected</span>
+    </div>
+    <div class="stats-pill">
+      <span class="stats-active" id="val-active">6</span> active
+      <span>·</span>
+      <span class="stats-stale" id="val-stale">0</span> stale
+    </div>
+  </div>
+
+  <div class="nav-actions">
+
+    <button class="btn-tour" id="btn-tour" title="Run Demo Story (Ctrl+D)">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <span>Run Tour</span>
+    </button>
+    <button class="btn-icon" id="btn-theme" title="Toggle Theme">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ── Workspace ─────────────────────────────────────────────────── -->
+<div id="workspace">
+
+  <!-- Main Canvas -->
+  <main id="canvas-wrapper">
+    <div id="canvas-viewport">
+      <svg id="wire-svg" aria-hidden="true">
+        <defs>
+          <marker id="m-stated" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#10b981"/>
+          </marker>
+          <marker id="m-derived" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#3b82f6"/>
+          </marker>
+          <marker id="m-contradicts" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#f43f5e"/>
+          </marker>
+        </defs>
+        <g id="wire-group"></g>
+      </svg>
+      <div id="node-container"></div>
+
+      <!-- Canvas HUD Controls -->
+      <div class="canvas-hud">
+        <button class="hud-btn" id="btn-zoom-in" title="Zoom in">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button class="hud-btn" id="btn-zoom-out" title="Zoom out">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button class="hud-btn" id="btn-fit" title="Reset layout">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Integrated Bottom Dock -->
+    <div id="dock">
+      <div class="dock-left">
+        <span class="dock-title">Timeline</span>
+        <input type="range" class="dock-slider" id="dock-slider" min="0" max="0" value="0">
+        <span class="dock-event" id="dock-event">Initial state</span>
+        <button class="btn-reset-dock" id="btn-reset" title="Reset Graph">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        </button>
+      </div>
+
+      <div class="dock-right">
+        <span class="cypher-tag">CYPHER</span>
+        <span class="cypher-text" id="cypher-query">
+          <span class="kw">MATCH</span> (s:<span class="tp">Source</span>)-[r]->(b:<span class="tp">Belief</span>) <span class="kw">RETURN</span> s, r, b
+        </span>
+        <span class="latency-text" id="cypher-latency">1.2ms</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <nav class="side-tabs" role="tablist">
+      <button class="side-tab active" data-tab="ask" role="tab">Query</button>
+      <button class="side-tab" data-tab="teach" role="tab">Teach</button>
+      <button class="side-tab" data-tab="agents" role="tab">Pipeline</button>
+      <button class="side-tab" data-tab="memory" role="tab">Memory</button>
+      <button class="side-tab" data-tab="rules" role="tab">Policies</button>
+    </nav>
+
+    <div class="side-body">
+
+      <!-- Query Tab -->
+      <section class="panel active" id="p-ask">
+        <div class="search-row">
+          <input class="search-input" id="ask-input" placeholder="Query agent belief state..." aria-label="Query input">
+          <button class="search-btn" id="ask-btn">Ask</button>
+        </div>
+
+        <div class="chips-row">
+          <button class="chip-btn" data-q="What is the API limit?">API limit?</button>
+          <button class="chip-btn" data-q="Can I run bulk import on Friday?">Bulk import Friday?</button>
+          <button class="chip-btn" data-q="How long does nightly sync take?">Nightly sync duration?</button>
+          <button class="chip-btn" data-q="What time does the sync start?">Sync start time?</button>
+        </div>
+
+        <div class="res-card" id="res-card">
+          <div class="res-header">
+            <span class="res-pill ok" id="res-pill">Ready</span>
+            <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim)">Truth Verification</span>
+          </div>
+          <div class="res-text" id="res-text">Ask any question above. The agent verifies against active graph dependencies in FalkorDB.</div>
+          <div class="res-lineage" id="res-lineage" style="display:none"></div>
+        </div>
+
+        <div class="audit-box">
+          <div class="audit-header">Mutation Stream</div>
+          <ul class="audit-list" id="audit-list"></ul>
+        </div>
+      </section>
+
+      <!-- Teach Tab -->
+      <section class="panel" id="p-teach">
+        <form id="teach-form">
+          <div class="field">
+            <label class="field-lbl">Belief Statement</label>
+            <textarea class="field-area" id="teach-txt" placeholder="e.g. API rate limit increased to 1000 req/min" required></textarea>
+          </div>
+          <div class="field">
+            <label class="field-lbl">Source Origin</label>
+            <select class="field-sel" id="teach-src" required></select>
+          </div>
+          <div class="field">
+            <label class="field-lbl">Derived From (Optional)</label>
+            <select class="field-sel" id="teach-der"></select>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-muted);cursor:pointer;margin:4px 0 10px">
+            <input type="checkbox" id="teach-gemini"> Decompose paragraph via Gemini AI
+          </label>
+          <button class="btn-submit" type="submit">Ingest Belief</button>
+        </form>
+      </section>
+
+      <!-- Pipeline Tab -->
+      <section class="panel" id="p-agents">
+        <div class="audit-box">
+          <div class="audit-header">Multi-Agent Handoffs</div>
+          <p style="font-size:11px;color:var(--text-dim);margin-bottom:8px">Researcher → Auditor → Advisor immutable pipeline.</p>
+          <div id="handoff-box" style="display:flex;flex-direction:column;gap:5px">
+            <div style="font-size:11px;color:var(--text-dim);text-align:center;padding:12px">No handoffs yet</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Memory Tab -->
+      <section class="panel" id="p-memory">
+        <div class="audit-box">
+          <div class="audit-header">Episodic Session Queries</div>
+          <p style="font-size:11px;color:var(--text-dim);margin-bottom:8px">Persistent session memories stored in FalkorDB.</p>
+          <div id="mem-box" style="display:flex;flex-direction:column;gap:5px">
+            <div style="font-size:11px;color:var(--text-dim);text-align:center;padding:12px">No queries stored yet</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Policies Tab -->
+      <section class="panel" id="p-rules">
+        <div class="audit-box">
+          <div class="audit-header">Learned Policy Rules</div>
+          <p style="font-size:11px;color:var(--text-dim);margin-bottom:8px">When a source fails 2+ times, FalkorDB synthesizes a policy rule.</p>
+          <div id="rules-box" style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-size:11px;color:var(--text-dim);text-align:center;padding:12px">No policy rules generated yet</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </aside>
+</div>
+
+<div id="toast"></div>
+
+<!-- ── Application Logic ──────────────────────────────────────────── -->
+<script>
+'use strict';
+
+let S = null, LIVE = false, H = [], cur = 0, P = {}, curUser = 'shared';
+let draggedNode = null, dragOffset = {x: 0, y: 0};
+
+const SEED = {
+  nodes: [
+    {id: 'old_doc', k: 's', name: 'Old API doc (2024)', trust: 0.3},
+    {id: 'slack', k: 's', name: 'Slack message', trust: 0.5},
+    {id: 'changelog', k: 's', name: 'Official changelog', trust: 0.9},
+    {id: 'B1', k: 'b', text: 'API limit is 100 requests/min'},
+    {id: 'B2', k: 'b', text: 'Batch size must stay under 100'},
+    {id: 'B3', k: 'b', text: 'Nightly sync needs about 2 hours'},
+    {id: 'B4', k: 'b', text: 'Do not run bulk import on Friday'},
+    {id: 'B5', k: 'b', text: 'API limit is 500 requests/min'},
+    {id: 'B6', k: 'b', text: 'Nightly sync starts at 2 AM'}
+  ],
+  edges: [
+    ['old_doc', 'STATED', 'B1'],
+    ['changelog', 'STATED', 'B5'],
+    ['slack', 'STATED', 'B6'],
+    ['B2', 'DERIVED_FROM', 'B1'],
+    ['B3', 'DERIVED_FROM', 'B2'],
+    ['B4', 'DERIVED_FROM', 'B3'],
+    ['B5', 'CONTRADICTS', 'B1']
+  ]
+};
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const E = () => S.edges;
+const N = id => S.nodes.find(n => n.id === id);
+
+function toast(msg, type = 'info') {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'show ' + (type === 'error' ? 'err' : type === 'success' ? 'ok' : '');
+  setTimeout(() => t.className = '', 3500);
+}
+
+function setCypher(q, latency = '1.1ms') {
+  const el = $('#cypher-query');
+  if (!el) return;
+  el.innerHTML = q
+    .replace(/\b(MATCH|WHERE|RETURN|CREATE|SET|WITH)\b/g, '<span class="kw">$1</span>')
+    .replace(/(:\w+)/g, '<span class="tp">$1</span>');
+  $('#cypher-latency').textContent = latency;
+}
+
+async function api(url, opts = {}) {
+  const sep = url.includes('?') ? '&' : '?';
+  const t0 = performance.now();
+  const r = await fetch(url + sep + 'user=' + encodeURIComponent(curUser), opts);
+  const elapsed = (performance.now() - t0).toFixed(1) + 'ms';
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const data = await r.json();
+  data._latency = elapsed;
+  return data;
+}
+
+// ── Graph Layout & Rendering ─────────────────────────────────────
+function col(id) {
+  const n = N(id);
+  if (!n || n.k === 's') return 0;
+  return 1 + Math.max(0, ...E().filter(e => e[0] === id && e[1] === 'DERIVED_FROM').map(e => col(e[2])));
+}
+
+function computeLayout() {
+  const g = {};
+  S.nodes.forEach(n => (g[col(n.id)] ??= []).push(n.id));
+  const maxCol = Math.max(...Object.keys(g).map(Number));
+  
+  Object.entries(g).forEach(([c, ids]) => {
+    ids.forEach((id, i) => {
+      P[id] = {
+        x: 8 + (+c / (maxCol || 1)) * 84,
+        y: ((i + 1) / (ids.length + 1)) * 100
+      };
+    });
+  });
+}
+
+function updateWires() {
+  $('#wire-group').innerHTML = E().map((e, i) => {
+    const a = P[e[0]], b = P[e[2]];
+    if (!a || !b) return '';
+    const mx = (a.x + b.x) / 2;
+    return `<path class="edge ${e[1]}" data-e="${i}" d="M ${a.x}% ${a.y}% C ${mx}% ${a.y}%, ${mx}% ${b.y}%, ${b.x}% ${b.y}%"/>`;
+  }).join('');
+}
+
+function buildGraph() {
+  computeLayout();
+  updateWires();
+
+  $('#node-container').innerHTML = S.nodes.map(n => {
+    const p = P[n.id];
+    if (!p) return '';
+    const st = `left:${p.x}%;top:${p.y}%`;
+
+    if (n.k === 's') {
+      return `
+        <div class="node src" id="n-${n.id}" style="${st}" data-id="${n.id}">
+          <div class="node-meta">
+            <span class="node-type">SOURCE</span>
+            <span class="node-sub">${n.id}</span>
+          </div>
+          <div class="node-title">${n.name}</div>
+          <div class="node-trust-bar">
+            <span>Confidence</span>
+            <span style="color:var(--emerald);font-weight:600">${Math.round(n.trust * 100)}%</span>
+          </div>
+          <button class="btn-retract-action" data-retract="${n.id}">Retract Source</button>
+        </div>`;
+    }
+
+    return `
+      <div class="node belief" id="n-${n.id}" style="${st}" data-id="${n.id}">
+        <div class="node-meta">
+          <span class="node-type">BELIEF</span>
+          <span class="node-sub">${n.id}</span>
+        </div>
+        <div class="node-text">${n.text}</div>
+        <span class="pill-status active" id="st-${n.id}">active</span>
+      </div>`;
+  }).join('');
+}
+
+function applyState(st, hl = null) {
+  S.nodes.forEach(n => {
+    const el = $(`#n-${n.id}`);
+    if (!el) return;
+    const s = st[n.id] || '';
+    let cls = `node ${n.k === 's' ? 'src' : 'belief'}`;
+    if (s) cls += ' ' + s;
+    if (hl) cls += hl.n.has(n.id) ? ' hl' : ' dim';
+    el.className = cls;
+
+    if (n.k === 's') {
+      const b = el.querySelector('.btn-retract-action');
+      if (b) {
+        b.disabled = !!s || cur !== H.length - 1;
+        b.textContent = s ? 'Retracted' : 'Retract Source';
+      }
+    } else {
+      const pill = $(`#st-${n.id}`);
+      if (pill) {
+        pill.textContent = s || 'active';
+        pill.className = 'pill-status ' + (s || 'active');
+      }
+    }
+  });
+
+  $$('#wire-group .edge').forEach(w => {
+    const idx = +w.dataset.e, e = E()[idx];
+    if (!e) return;
+    let cls = 'edge ' + e[1];
+    if (st[e[0]] || st[e[2]]) cls += ' off';
+    if (hl) {
+      if (hl.ed.has(idx)) cls += ' hl';
+      else cls += ' dim';
+    }
+    w.setAttribute('class', cls);
+  });
+
+  const bs = S.nodes.filter(n => n.k === 'b');
+  const stale = bs.filter(n => st[n.id]).length;
+  $('#val-active').textContent = bs.length - stale;
+  $('#val-stale').textContent = stale;
+}
+
+// ── Interactive Dragging of Nodes ────────────────────────────────
+const viewport = $('#canvas-viewport');
+
+viewport.addEventListener('mousedown', e => {
+  const nodeEl = e.target.closest('.node');
+  if (!nodeEl || e.target.closest('button')) return;
+  draggedNode = nodeEl;
+  draggedNode.classList.add('dragging');
+  const rect = viewport.getBoundingClientRect();
+  const id = draggedNode.dataset.id;
+  const currentP = P[id];
+  const nodePixelX = (currentP.x / 100) * rect.width;
+  const nodePixelY = (currentP.y / 100) * rect.height;
+  dragOffset.x = (e.clientX - rect.left) - nodePixelX;
+  dragOffset.y = (e.clientY - rect.top) - nodePixelY;
+});
+
+window.addEventListener('mousemove', e => {
+  if (!draggedNode) return;
+  const rect = viewport.getBoundingClientRect();
+  const id = draggedNode.dataset.id;
+  const pixelX = Math.max(30, Math.min(rect.width - 30, (e.clientX - rect.left) - dragOffset.x));
+  const pixelY = Math.max(20, Math.min(rect.height - 20, (e.clientY - rect.top) - dragOffset.y));
+  
+  P[id].x = (pixelX / rect.width) * 100;
+  P[id].y = (pixelY / rect.height) * 100;
+  
+  draggedNode.style.left = P[id].x + '%';
+  draggedNode.style.top = P[id].y + '%';
+  updateWires();
+  applyState(H[cur]?.st || {});
+});
+
+window.addEventListener('mouseup', () => {
+  if (draggedNode) {
+    draggedNode.classList.remove('dragging');
+    draggedNode = null;
+  }
+});
+
+// ── Graph History & Timeline ─────────────────────────────────────
+function push(label, st) {
+  H.push({label, st});
+  const sl = $('#dock-slider');
+  sl.max = H.length - 1;
+  sl.value = H.length - 1;
+  cur = H.length - 1;
+  $('#dock-event').textContent = label;
+  
+  const li = document.createElement('li');
+  li.className = 'audit-line';
+  const t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  li.innerHTML = `<span style="color:var(--text-dim)">${t}</span> ${label}`;
+  $('#audit-list').prepend(li);
+  applyState(st);
+}
+
+// ── Cascade & Blame ──────────────────────────────────────────────
+function cascade(sid) {
+  const lv = [], seen = new Set();
+  let c = E().filter(e => e[0] === sid && e[1] === 'STATED').map(e => e[2]);
+  while (c.length) {
+    c = c.filter(x => !seen.has(x));
+    c.forEach(x => seen.add(x));
+    if (c.length) lv.push(c);
+    const p = c;
+    c = E().filter(e => e[1] === 'DERIVED_FROM' && p.includes(e[2])).map(e => e[0]);
+  }
+  return lv;
+}
+
+function blame(id) {
+  const nodes = new Set([id]), edges = new Set();
+  (function walk(x) {
+    E().forEach((e, i) => {
+      if ((e[0] === x && e[1] === 'DERIVED_FROM') || (e[2] === x && e[1] === 'STATED')) {
+        edges.add(i);
+        const y = e[1] === 'STATED' ? e[0] : e[2];
+        if (!nodes.has(y)) { nodes.add(y); walk(y); }
+      }
+    });
+  })(id);
+  return {n: nodes, ed: edges};
+}
+
+const getSources = id => [...blame(id).n].map(N).filter(n => n && n.k === 's');
+const trustOf = id => {
+  const s = getSources(id);
+  return s.length ? Math.min(...s.map(x => x.trust)) : 1.0;
+};
+
+// ── Retraction ───────────────────────────────────────────────────
+function retract(sid) {
+  const lv = cascade(sid);
+  const st = {...H[H.length - 1].st};
+  const all = lv.flat();
+  st[sid] = 'retracted';
+  applyState({...st});
+
+  setCypher(`MATCH (s:Source {id:'${sid}'}) SET s.status='retracted' WITH s MATCH (s)-[:STATED]->(b:Belief) SET b.status='stale'`);
+
+  if (LIVE) {
+    api('api/retract/' + sid, {method: 'POST'})
+      .then(d => {
+        if (d.handoffs) renderHandoffs(d.handoffs);
+        if (d.playbook) renderPolicy(d.playbook);
+      })
+      .catch(() => {});
+  }
+
+  lv.forEach((level, i) => {
+    setTimeout(() => {
+      level.forEach(x => st[x] = 'stale');
+      applyState({...st});
+    }, (i + 1) * 350);
+  });
+
+  setTimeout(() => {
+    push(`Retracted ${N(sid)?.name || sid}: ${all.length} beliefs unwound.`, {...st});
+    toast(`Retracted ${N(sid)?.name || sid}. ${all.length} downstream beliefs stale.`, 'error');
+  }, (lv.length + 1) * 350);
+}
+
+// ── Ask / Query Engine ───────────────────────────────────────────
+const SW = new Set('the are what can and how for why you does this that with run is a an'.split(' '));
+const words = t => new Set((t.toLowerCase().match(/[a-z]{3,}/g) || []).filter(w => !SW.has(w)));
+
+function localAsk(q, st) {
+  const qw = words(q);
+  const score = n => [...qw].filter(w => n.text.toLowerCase().includes(w)).length;
+  const matches = S.nodes.filter(n => n.k === 'b' && score(n) > 0);
+  const valid = matches.filter(n => !st[n.id]).sort((a, b) => score(b) - score(a) || trustOf(b.id) - trustOf(a.id));
+  return {best: valid[0], invalid: matches.filter(n => st[n.id])};
+}
+
+async function askAgent(q) {
+  if (!q) return;
+  $('#ask-input').value = q;
+  const st = H[H.length - 1].st;
+  let text = '', id = null, lineage = '', isOk = true;
+
+  setCypher(`MATCH (b:Belief {status:'active'}) WHERE b.text =~ '(?i).*${q.replace(/'/g,"")}.*' RETURN b`);
+
+  if (LIVE) {
+    try {
+      const d = await api('api/ask?q=' + encodeURIComponent(q));
+      if (d.answer) { text = d.answer; id = (d.used || [])[0]; }
+      if (d.handoffs) renderHandoffs(d.handoffs);
+      refreshMem();
+    } catch {}
+  }
+
+  if (!text) {
+    const res = localAsk(q, st);
+    if (res.best) {
+      id = res.best.id;
+      text = res.best.text + '.';
+      const cf = E().find(e => e[1] === 'CONTRADICTS' && (e[0] === id || e[2] === id));
+      const sList = getSources(id);
+      lineage = `Lineage: rests on ${sList.map(s => `${s.name} (${Math.round(s.trust*100)}% trust)`).join(', ')}.`;
+      if (trustOf(id) < 0.5) lineage += ' ⚠ Low confidence.';
+      if (cf) lineage += ` Conflicts with "${N(cf[0] === id ? cf[2] : cf[0])?.text}".`;
+    } else {
+      isOk = false;
+      text = 'I have no active belief that answers this safely.';
+      if (res.invalid?.[0]) lineage = `Reason: Dependent belief "${res.invalid[0].text}" is retracted/stale.`;
+    }
+  }
+
+  const pill = $('#res-pill');
+  pill.textContent = isOk ? 'Verified Active' : 'Unwound / Stale';
+  pill.className = 'res-pill ' + (isOk ? 'ok' : 'bad');
+  $('#res-text').textContent = text;
+  
+  const linEl = $('#res-lineage');
+  if (lineage) { linEl.textContent = lineage; linEl.style.display = 'block'; }
+  else linEl.style.display = 'none';
+
+  applyState(st, id && N(id) ? blame(id) : null);
+  switchTab('ask');
+}
+
+// ── Ingest Belief (Teach) ────────────────────────────────────────
+async function teachAgent(e) {
+  e.preventDefault();
+  const text = $('#teach-txt').value.trim();
+  const src = $('#teach-src').value;
+  const from = $('#teach-der').value;
+  const isGemini = $('#teach-gemini').checked;
+  if (!text) return;
+
+  const st = {...H[H.length - 1].st};
+  let id = null;
+
+  setCypher(`MATCH (s:Source {id:'${src}'}) CREATE (s)-[:STATED]->(:Belief {text:'${text.slice(0,25)}...', status:'active'})`);
+
+  if (LIVE) {
+    try {
+      const d = await api('api/learn', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text, source: src, derived_from: from || null, paragraph: isGemini})
+      });
+      if (d.beliefs) {
+        toast(`Extracted ${d.extracted_count} beliefs via Gemini AI`, 'success');
+        S = await api('api/state');
+        buildGraph();
+        fillForms();
+        $('#teach-txt').value = '';
+        push(`Learned ${d.extracted_count} beliefs via Gemini`, st);
+        d.beliefs.forEach(b => { if (b.handoffs) renderHandoffs(b.handoffs); });
+        return;
+      }
+      id = d.id;
+      if (d.handoffs) renderHandoffs(d.handoffs);
+      S = await api('api/state');
+    } catch {
+      toast('Saved locally', 'info');
+    }
+  }
+
+  if (!id) {
+    id = 'B' + (S.nodes.filter(n => n.k === 'b').length + 1);
+    S.nodes.push({id, k: 'b', text});
+    E().push([src, 'STATED', id]);
+    if (from) E().push([id, 'DERIVED_FROM', from]);
+  }
+
+  buildGraph();
+  fillForms();
+  $('#teach-txt').value = '';
+  push(`Learned ${id} from ${N(src)?.name || src}`, st);
+  toast('Belief ingested into FalkorDB', 'success');
+}
+
+// ── Sidebar Utilities ────────────────────────────────────────────
+function fillForms() {
+  $('#teach-src').innerHTML = S.nodes.filter(n => n.k === 's')
+    .map(n => `<option value="${n.id}">${n.name} (${Math.round(n.trust*100)}% trust)</option>`).join('');
+  $('#teach-der').innerHTML = '<option value="">None (Axiom)</option>' +
+    S.nodes.filter(n => n.k === 'b')
+      .map(n => `<option value="${n.id}">${n.id}: ${n.text.slice(0, 28)}…</option>`).join('');
+}
+
+function renderHandoffs(handoffs) {
+  if (!handoffs?.length) return;
+  $('#handoff-box').innerHTML = handoffs.map(h => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:var(--bg-app);border-radius:4px;font-size:11px">
+      <span>${h.from} → ${h.to}</span>
+      <span style="font-family:var(--font-mono);color:var(--primary)">${h.belief_id}</span>
+    </div>
+  `).join('');
+}
+
+async function refreshMem() {
+  if (!LIVE) return;
+  try {
+    const d = await api('api/history');
+    if (d.questions?.length) {
+      $('#mem-box').innerHTML = d.questions.map(q => `
+        <div style="padding:6px 8px;background:var(--bg-app);border-radius:4px;font-size:11.5px">
+          <div style="font-weight:500">"${q.text}"</div>
+          <div style="font-size:9.5px;color:var(--text-dim);font-family:var(--font-mono)">${(q.belief_ids||[]).join(', ')}</div>
+        </div>
+      `).join('');
+    }
+  } catch {}
+}
+
+function renderPolicy(pb) {
+  if (!pb) return;
+  $('#rules-box').insertAdjacentHTML('afterbegin', `
+    <div style="padding:8px;background:var(--emerald-subtle);border:1px solid var(--emerald-border);border-radius:4px;font-size:11.5px">
+      <div style="font-size:9px;font-weight:700;color:var(--emerald);text-transform:uppercase">Learned Policy</div>
+      <div>${pb.rule}</div>
+    </div>
+  `);
+}
+
+function switchTab(name) {
+  $$('.side-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  $$('.panel').forEach(p => p.classList.toggle('active', p.id === 'p-' + name));
+}
+
+// ── Interactive Guided Tour ──────────────────────────────────────
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function runTour() {
+  if (H.length > 1) { toast('Reset graph first to replay tour', 'info'); return; }
+  const btn = $('#btn-tour');
+  btn.disabled = true;
+
+  switchTab('ask');
+  await askAgent('Can I run bulk import on Friday?');
+  await wait(3800);
+
+  retract('old_doc');
+  await wait(3500);
+
+  await askAgent('Can I run bulk import on Friday?');
+  await wait(3500);
+
+  btn.disabled = false;
+  toast('Tour finished. Drag timeline slider to travel in time.', 'success');
+}
+
+// ── Event Listeners ──────────────────────────────────────────────
+$$('.side-tab').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+$('#ask-btn').addEventListener('click', () => askAgent($('#ask-input').value.trim()));
+$('#ask-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); askAgent($('#ask-input').value.trim()); } });
+$('#teach-form').addEventListener('submit', teachAgent);
+$('#btn-tour').addEventListener('click', runTour);
+
+$('#btn-reset').addEventListener('click', async () => {
+  if (LIVE) await api('api/reset', {method: 'POST'}).catch(() => {});
+  location.reload();
+});
+
+$('#dock-slider').addEventListener('input', e => {
+  cur = +e.target.value;
+  $('#dock-event').textContent = H[cur]?.label || '';
+  applyState(H[cur]?.st || {});
+});
+
+$('#btn-fit').addEventListener('click', () => { computeLayout(); updateWires(); applyState(H[cur]?.st || {}); });
+$('#btn-zoom-in').addEventListener('click', () => { toast('Zoom 120%', 'info'); });
+$('#btn-zoom-out').addEventListener('click', () => { toast('Zoom 90%', 'info'); });
+
+$('#btn-theme').addEventListener('click', () => {
+  const d = document.documentElement;
+  d.setAttribute('data-theme', d.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+
+$('#ws-switcher').addEventListener('change', async function() {
+  curUser = this.value;
+  H = []; cur = 0;
+  try { S = LIVE ? await api('api/state') : JSON.parse(JSON.stringify(SEED)); } catch {}
+  buildGraph(); fillForms();
+  push(`Partition '${curUser}' active`, S.stale || {});
+  refreshMem();
+});
+
+document.addEventListener('click', e => {
+  const r = e.target.closest('[data-retract]');
+  if (r) { retract(r.dataset.retract); return; }
+  const n = e.target.closest('.node');
+  if (n) {
+    const id = n.dataset.id;
+    applyState(H[cur].st, blame(id));
+    $('#res-text').textContent = N(id)?.text || N(id)?.name || '';
+    const s = getSources(id);
+    const lin = `Lineage: ${s.map(x=>`${x.name} (${Math.round(x.trust*100)}%)`).join(', ')}`;
+    $('#res-lineage').textContent = lin;
+    $('#res-lineage').style.display = 'block';
+    $('#res-pill').textContent = 'Node Inspector';
+    $('#res-pill').className = 'res-pill ok';
+    switchTab('ask');
+    setCypher(`MATCH (n {id:'${id}'})<-[:DERIVED_FROM*0..]-(dep)<-[:STATED]-(s:Source) RETURN s, dep, n`);
+    return;
+  }
+  const q = e.target.closest('[data-q]');
+  if (q) { askAgent(q.dataset.q); switchTab('ask'); return; }
+  if (e.target.id === 'canvas-viewport') applyState(H[cur]?.st || {});
+});
+
+// Init
+(async () => {
+  try {
+    const r = await fetch('api/state?user=shared');
+    if (!r.ok) throw new Error();
+    S = await r.json();
+    LIVE = S.error !== 'no_db';
+    if (!LIVE) S = JSON.parse(JSON.stringify(SEED));
+  } catch {
+    LIVE = false;
+    S = JSON.parse(JSON.stringify(SEED));
+  }
+
+  const dot = $('#conn-dot'), txt = $('#conn-text');
+  if (LIVE) { dot.classList.remove('off'); txt.textContent = 'Connected'; }
+  else { dot.classList.add('off'); txt.textContent = 'Local Standalone'; }
+
+  buildGraph();
+  fillForms();
+  push(`Initial state: 3 sources, 6 beliefs loaded`, S.stale || {});
+
+  if (LIVE) {
+    if (S.handoffs) renderHandoffs(S.handoffs);
+    if (S.playbooks?.length) S.playbooks.forEach(renderPolicy);
+    try {
+      const u = await fetch('api/users');
+      const ud = await u.json();
+      $('#ws-switcher').innerHTML = ud.users.map(u => `<option value="${u}"${u==='shared'?' selected':''}>${u==='shared'?'shared_base':u+'_session'}</option>`).join('');
+    } catch {}
+    refreshMem();
+  }
+})();
+</script>
+</body>
+</html>
