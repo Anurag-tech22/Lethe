@@ -31,36 +31,34 @@ In Lethe:
 
 ```mermaid
 graph TB
-    subgraph Client["Frontend Workstation (Vanilla JS / Canvas)"]
-        UI["Interactive Graph Canvas<br/>• Real-time Drag & Drop<br/>• SVG Directed Edge Routing<br/>• Blame Path Highlighting"]
-        HUD["Telemetry & Time-Travel Dock<br/>• Scrubbable History<br/>• Live Cypher Stream"]
+    subgraph Client["Frontend Workstation"]
+        UI["Interactive Graph Canvas<br/>Drag & Drop, SVG Routing, Blame Tracing"]
+        HUD["Telemetry Dock<br/>Timeline Slider, Cypher Monitor"]
     end
 
     subgraph Server["Agent Core (FastAPI)"]
-        API["REST Gateway (/api/ask, /api/learn, /api/retract)"]
-        Pipeline["Multi-Agent Coordination Pipeline"]
-        Researcher["1. Researcher Agent<br/>(Extracts & Grounds)"]
-        Auditor["2. Auditor Agent<br/>(Checks Contradictions)"]
-        Advisor["3. Advisor Agent<br/>(Synthesizes with Provenance)"]
-        Gemini["Gemini AI Decomposition<br/>(Paragraph → Atomic Beliefs)"]
+        API["REST Gateway<br/>/api/ask, /api/learn, /api/retract"]
+        Researcher["1. Researcher Agent<br/>Extracts & Grounds Truth"]
+        Auditor["2. Auditor Agent<br/>Detects Contradictions"]
+        Advisor["3. Advisor Agent<br/>Synthesizes with Provenance"]
+        Gemini["Gemini AI Decomposition<br/>Paragraph to Atomic Beliefs"]
     end
 
     subgraph Storage["FalkorDB Graph Engine"]
-        SharedG["(shared_base)<br/>Immutable System Axioms"]
-        AliceG["(mem_alice)<br/>Isolated Tenant Partition"]
-        BobG["(mem_bob)<br/>Isolated Tenant Partition"]
-        UserG["(mem_user)<br/>Dynamic User Partition"]
+        SharedG[("shared_base<br/>Immutable System Axioms")]
+        AliceG[("mem_alice<br/>Tenant Partition")]
+        BobG[("mem_bob<br/>Tenant Partition")]
+        UserG[("mem_user<br/>Tenant Partition")]
     end
 
-    UI <-->|JSON REST| API
-    API --> Pipeline
-    Pipeline --> Researcher --> Auditor --> Advisor
+    UI -->|REST API Requests| API
+    API -->|Telemetry State| HUD
+    API --> Researcher
+    Researcher --> Auditor
+    Auditor --> Advisor
     API -.->|Optional LLM| Gemini
-    Pipeline <-->|Native Cypher (falkordb-py)| Storage
-    Storage --- SharedG
-    Storage --- AliceG
-    Storage --- BobG
-    Storage --- UserG
+    Advisor -->|Native Cypher| SharedG
+    Advisor -->|Native Cypher| UserG
 ```
 
 ---
@@ -100,12 +98,12 @@ classDiagram
         +int created_at
     }
 
-    Source --> Belief : :STATED
-    Belief --> Belief : :DERIVED_FROM
-    Belief --> Belief : :CONTRADICTS
-    Session --> Question : :ASKED
-    Question --> Belief : :FOUND
-    Playbook --> Source : :APPLIES_TO
+    Source --> Belief : STATED
+    Belief --> Belief : DERIVED_FROM
+    Belief --> Belief : CONTRADICTS
+    Session --> Question : ASKED
+    Question --> Belief : FOUND
+    Playbook --> Source : APPLIES_TO
 ```
 
 ---
@@ -136,19 +134,19 @@ sequenceDiagram
     participant Falkor as FalkorDB Engine
     participant Agent as Advisor Agent
 
-    User->>UI: Click "Retract Source" (old_doc)
+    User->>UI: Click Retract Source (old_doc)
     UI->>API: POST /api/retract/old_doc
-    API->>Falkor: Cypher: MATCH (s:Source {id:'old_doc'}) SET s.status='retracted'
-    API->>Falkor: Cypher: MATCH (s)-[:STATED]->(b)<-[:DERIVED_FROM*]-(dep) SET dep.status='stale'
-    Falkor-->>API: 4 downstream beliefs unwound
+    API->>Falkor: Cypher: Invalidate old_doc status to retracted
+    API->>Falkor: Cypher: Traverse DERIVED_FROM chain and mark stale
+    Falkor-->>API: 4 downstream beliefs unwound (B1..B4)
     API->>Falkor: Check procedural threshold (retractions >= 2)
-    API-->>UI: Retraction & Cascade confirmed
-    UI->>UI: Animate dashed borders & strikethroughs
-    User->>UI: Ask: "Can I run bulk import on Friday?"
+    API-->>UI: Retraction and Cascade confirmed
+    UI->>UI: Animate dashed borders and strikethroughs
+    User->>UI: Ask: Can I run bulk import on Friday?
     UI->>API: GET /api/ask?q=bulk+import
-    API->>Falkor: Cypher: Filter out status='stale'
-    Falkor-->>API: No active supporting beliefs found
-    API-->>UI: "I have no active belief that answers this safely. Retracted: Do not run bulk import on Friday."
+    API->>Falkor: Cypher: Query active beliefs
+    Falkor-->>API: No active supporting beliefs found (B4 is stale)
+    API-->>UI: Refusal: No active belief. Notice: Rule was retracted.
 ```
 
 ---
